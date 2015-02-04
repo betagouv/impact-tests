@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express');
 var mongoose = require('mongoose');
 var ludwigApi = require('ludwig-api');
@@ -11,10 +13,78 @@ var app = express();
 // Mount Ludwig API
 // var Situation = mongoose.model('Situation');
 
-
 app.use(ludwigApi({
 
     mongoose: mongoose,
+
+    possibleValues: [
+        {
+            id: 'carteStationnement',
+            shortLabel: 'Carte stationnement',
+            title: 'Carte de stationnement',
+            hasMontant: false
+        },
+        {
+            id: 'carteInvalidite',
+            shortLabel: 'Carte d\'invalidité',
+            title: 'Carte d\'invalidité',
+            hasMontant: false
+        },
+        {
+            id: 'aeeh',
+            shortLabel: 'AEEH',
+            title: 'Allocation d\'éducation de l\'enfant handicapé',
+            hasMontant: false
+        },
+        {
+            id: 'aah',
+            shortLabel: 'AAH',
+            title: 'Allocation aux adultes handicapés',
+            hasMontant: false
+        },
+        {
+            id: 'pch',
+            shortLabel: 'PCH',
+            title: 'Prestation de compensation du handicap',
+            hasMontant: false
+        },
+        {
+            id: 'rqth',
+            shortLabel: 'RQTH',
+            title: 'Reconnaissance de la Qualité de Travailleur Handicapé',
+            hasMontant: false
+        },
+        {
+            id: 'av',
+            shortLabel: 'AV',
+            title: 'Affiliation gratuite à l\'assurance vieillesse',
+            hasMontant: false
+        },
+        {
+            id: 'ems',
+            shortLabel: 'EMS',
+            title: 'Accompagnement par un service ou établissement médico-social',
+            hasMontant: false
+        },
+        {
+            id: 'pps',
+            shortLabel: 'PPS',
+            title: 'Plan personnalisé de scolarisation',
+            hasMontant: false
+        },
+        {
+            id: 'orp',
+            shortLabel: 'ORP',
+            title: 'Orientation professionnelle',
+            hasMontant: false
+        },
+        {
+            id: 'ac',
+            type: 'presta-finances',
+            title: 'Allocation compensatrice',
+            hasMontant: false
+        }
+    ],
 
     simulate: function (acceptanceTest, done) {
         // Situation.findById(acceptanceTest.scenario.situationId).exec(function (err, situation) {
@@ -22,7 +92,7 @@ app.use(ludwigApi({
         //     if (!situation) return done(new Error('Situation not found'));
         //     situation.simulate(done);
         // });
-        done(null, {});
+        done(null, {'pch': true});
     },
 
     onCreate: function (acceptanceTest, done) {

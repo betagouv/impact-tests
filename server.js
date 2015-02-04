@@ -17,7 +17,7 @@ if ('production' === env) {
 
 // Setup app
 app.use('/api', require('./impact-tests-api'));
-require('./impact-tests-ui')(app);
+require('ludwig-ui')(app);
 
 if ('development' === env) {
     app.use(errorHandler());
