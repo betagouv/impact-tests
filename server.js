@@ -1,6 +1,7 @@
 var express = require('express');
 var errorHandler = require('errorhandler');
 var morgan = require('morgan');
+var path = require('path');
 
 var env = process.env.NODE_ENV || 'development';
 
@@ -16,8 +17,8 @@ if ('production' === env) {
 }
 
 // Setup app
-app.use('/api', require('./impact-tests-api'));
-require('ludwig-ui')(app);
+app.use('/api', require('./api'));
+require('ludwig-ui')(app, path.join(__dirname, 'ui/scenario.js'));
 
 if ('development' === env) {
     app.use(errorHandler());
