@@ -27,19 +27,30 @@ var getValueList = function(question, answerModelList) {
 };
 
 var isAdult = function(contexte) {
+  var now = moment().startOf('day');
   if (!contexte || !contexte.dateNaissance) {
     return true;
   }
-
-  return moment.diff(contexte.dateNaissance, 'years') >= 20;
+  return now.diff(contexte.dateNaissance, 'years') >= 20;
 };
 
 var isLessThan62 = function(contexte) {
+  var now = moment().startOf('day');
   if (!contexte || !contexte.dateNaissance) {
     return true;
   }
 
-  return moment.diff(contexte.dateNaissance, 'years') < 62;
+  return now.diff(contexte.dateNaissance, 'years') < 62;
+};
+
+var estRenouvellement = function(presta, renouvellements) {
+  var res = renouvellements && renouvellements[presta.id];
+  if (res) {
+    presta.renouvellement = true;
+    var date = renouvellements[presta.id].date;
+    presta.descRenouvellement = '* Etude du renouvellement de votre droit se terminant le ' + moment(date).format('DD/MM/YYYY') + '.';
+  }
+  return res;
 };
 
 var getCallbacks = function(answers) {
@@ -49,27 +60,16 @@ var getCallbacks = function(answers) {
   var renouvellements = getSection(answers, 'prestations');
   var travail = getSection(answers, 'travail');
 
-  var besoinsDeplacement = _.result(vieQuotidienne, 'besoinsDeplacement');
-  var besoinsVie = _.result(vieQuotidienne, 'besoinsVie');
-  var besoinsLieuDeVie = _.result(vieQuotidienne, 'besoinsLieuDeVie');
-  var besoinsSocial = _.result(vieQuotidienne, 'besoinsSocial');
-  var attentesTypeAide = _.result(vieQuotidienne, 'attentesTypeAide');
+  var besoinsDeplacement = getValue(vieQuotidienne, 'besoinsDeplacement');
+  var besoinsVie = getValue(vieQuotidienne, 'besoinsVie');
+  var besoinsLieuDeVie = getValue(vieQuotidienne, 'besoinsLieuDeVie');
+  var besoinsSocial = getValue(vieQuotidienne, 'besoinsSocial');
+  var attentesTypeAide = getValue(vieQuotidienne, 'attentesTypeAide');
 
-  var attentesAidant = _.result(aidant, 'typeAttente');
-
+  var attentesAidant = getValue(aidant, 'typeAttente');
   var estAdulte = isAdult(contexte);
   var estEnfant = !estAdulte;
   var aMoinsDe62Ans = isLessThan62(contexte);
-
-  var estRenouvellement = function(presta) {
-    var res = renouvellements && renouvellements[presta.id];
-    if (res) {
-      presta.renouvellement = true;
-      var date = renouvellements[presta.id].date;
-      presta.descRenouvellement = '* Etude du renouvellement de votre droit se terminant le ' + moment(date).format('DD/MM/YYYY') + '.';
-    }
-    return res;
-  };
 
   var ou = _.some;
   var et = _.every;
@@ -87,7 +87,7 @@ var getCallbacks = function(answers) {
 
   return {
     aah: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -127,7 +127,7 @@ var getCallbacks = function(answers) {
       ]);
     },
     aeeh: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -163,7 +163,7 @@ var getCallbacks = function(answers) {
     },
     av: function(droit) {
       // Assurance vieillesse
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -176,7 +176,7 @@ var getCallbacks = function(answers) {
       ]);
     },
     carteInvalidite: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -189,7 +189,7 @@ var getCallbacks = function(answers) {
       ]);
     },
     carteStationnement: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -206,26 +206,26 @@ var getCallbacks = function(answers) {
       ]);
     },
     ac: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       } else {
         return false;
       }
     },
     pps: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
       return contexte && contexte.ecole;
     },
     orp: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
       return contexte && _.some([contexte.travail, contexte.formation]);
     },
     pch: function(droit) {
-      if (estRenouvellement(droit) || estRenouvellement({id: 'ac'})) {
+      if (estRenouvellement(droit, renouvellements) || estRenouvellement({id: 'ac'})) {
         return true;
       }
 
@@ -265,7 +265,7 @@ var getCallbacks = function(answers) {
       return estEnfant && pchEnfant() || estAdulte && pchAdulte();
     },
     ems: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -305,7 +305,7 @@ var getCallbacks = function(answers) {
       ]);
     },
     sms: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
 
@@ -346,7 +346,7 @@ var getCallbacks = function(answers) {
       ]);
     },
     rqth: function(droit) {
-      if (estRenouvellement(droit)) {
+      if (estRenouvellement(droit, renouvellements)) {
         return true;
       }
       return contexte && _.some([contexte.travail, contexte.formation]);
